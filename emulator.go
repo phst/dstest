@@ -151,7 +151,7 @@ func Emulator(ctx context.Context, t testing.TB, opts ...Option) *datastore.Clie
 // Option is an option for [Emulator].  The current implementations are [Mode]
 // and [StartTimeout].
 type Option interface {
-	apply(*options) error
+	apply(*options)
 }
 
 // Mode is an [Option] that determines the mode of the datastore emulator;
