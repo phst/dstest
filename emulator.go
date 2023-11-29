@@ -158,6 +158,8 @@ type Option interface {
 // either Firestore or legacy mode.
 type Mode int
 
+var _ Option = Mode(0)
+
 func (m Mode) apply(o *options) {
 	o.mode = m
 }
@@ -170,6 +172,8 @@ const (
 // StartTimeout is an [Option] that determines how long to wait for the
 // datastore emulator to start.
 type StartTimeout time.Duration
+
+var _ Option = StartTimeout(0)
 
 func (t StartTimeout) apply(o *options) {
 	o.startTimeout = time.Duration(t)
