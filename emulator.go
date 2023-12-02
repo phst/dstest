@@ -115,13 +115,15 @@ func Emulator(ctx context.Context, t testing.TB, opts ...Option) *datastore.Clie
 	}
 
 	t.Logf("dstest: Cloud Datastore emulator running at %s; waiting for health check", env.value)
+	httpClient := retryablehttp.NewClient()
+	httpClient.Logger = logger{t}
 	// This could be a HEAD request, but the datastore emulator doesn’t
 	// accept those.
 	req, err := retryablehttp.NewRequestWithContext(startCtx, http.MethodGet, fmt.Sprintf("http://%s/", env.value), nil)
 	if err != nil {
 		t.Fatalf("dstest: health check failed: %s", err)
 	}
-	resp, err := retryablehttp.NewClient().Do(req)
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		t.Fatalf("dstest: health check failed: %s", err)
 	}
@@ -139,7 +141,7 @@ func Emulator(ctx context.Context, t testing.TB, opts ...Option) *datastore.Clie
 			t.Errorf("dstest: stopping Cloud Datastore emulator failed: %s", err)
 			return
 		}
-		resp, err := retryablehttp.NewClient().Do(req)
+		resp, err := httpClient.Do(req)
 		if err != nil {
 			t.Errorf("dstest: stopping Cloud Datastore emulator failed: %s", err)
 			return
