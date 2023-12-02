@@ -24,6 +24,7 @@ import (
 	"net/http"
 	"os/exec"
 	"regexp"
+	"sync"
 	"testing"
 	"time"
 
@@ -92,22 +93,18 @@ func Emulator(ctx context.Context, t testing.TB, opts ...Option) *datastore.Clie
 	if err := cmd.Start(); err != nil {
 		t.Fatalf("dstest: couldn’t start Cloud Datastore emulator: %s", err)
 	}
+	var wg sync.WaitGroup
+	wg.Add(1)
 	go func() {
+		defer wg.Done()
 		if err := cmd.Wait(); err != nil {
 			t.Errorf("dstest: Cloud Datastore emulator failed: %s", err)
-		}
-		t.Log("dstest: Cloud Datastore emulator terminated")
-	}()
-	t.Cleanup(func() {
-		t.Log("dstest: killing Cloud Datastore emulator")
-		if err := cmd.Process.Kill(); err != nil {
-			t.Errorf("dstest: killing Cloud Datastore emulator failed: %s", err)
 		}
 		if err := pw.Close(); err != nil {
 			t.Errorf("dstest: error closing output writer: %s", err)
 		}
-		t.Log("dstest: Cloud Datastore emulator killed")
-	})
+		t.Log("dstest: Cloud Datastore emulator terminated")
+	}()
 
 	t.Log("dstest: Cloud Datastore emulator started; waiting for startup")
 	var env envVar
@@ -133,6 +130,28 @@ func Emulator(ctx context.Context, t testing.TB, opts ...Option) *datastore.Clie
 	}
 
 	t.Logf("dstest: Cloud Datastore emulator running at %s is healthy", env.value)
+	t.Cleanup(func() {
+		ctx, cancel := context.WithTimeout(ctx, 20*time.Second)
+		defer cancel()
+		t.Log("dstest: asking Cloud Datastore emulator to shut down")
+		req, err := retryablehttp.NewRequestWithContext(ctx, http.MethodPost, fmt.Sprintf("http://%s/shutdown", env.value), nil)
+		if err != nil {
+			t.Errorf("dstest: stopping Cloud Datastore emulator failed: %s", err)
+			return
+		}
+		resp, err := retryablehttp.NewClient().Do(req)
+		if err != nil {
+			t.Errorf("dstest: stopping Cloud Datastore emulator failed: %s", err)
+			return
+		}
+		defer resp.Body.Close()
+		if resp.StatusCode != http.StatusOK {
+			t.Errorf("dstest: stopping Cloud Datastore emulator failed: %s", resp.Status)
+			return
+		}
+		t.Log("dstest: waiting for Cloud Datastore emulator to stop")
+		wg.Wait()
+	})
 	t.Setenv(env.name, env.value)
 
 	client, err := datastore.NewClient(ctx, datastore.DetectProjectID)
