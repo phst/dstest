@@ -38,13 +38,15 @@ import (
 // the emulator process.  When the test ends, the returned client is
 // automatically closed and the emulator process is killed.  Unless overridden
 // by passing [Option] arguments, this function will start the emulator in
-// Firestore mode and wait up to 20 seconds for it to start up.
+// Firestore mode and wait up to 20 seconds for it to start up and stop,
+// respectively.
 func Emulator(ctx context.Context, t testing.TB, opts ...Option) *datastore.Client {
 	t.Helper()
 
 	o := options{
 		mode:         FirestoreMode,
 		startTimeout: 20 * time.Second,
+		stopTimeout:  20 * time.Second,
 	}
 	for _, opt := range opts {
 		opt.apply(&o)
@@ -133,7 +135,7 @@ func Emulator(ctx context.Context, t testing.TB, opts ...Option) *datastore.Clie
 
 	t.Logf("dstest: Cloud Datastore emulator running at %s is healthy", env.value)
 	t.Cleanup(func() {
-		ctx, cancel := context.WithTimeout(ctx, 20*time.Second)
+		ctx, cancel := context.WithTimeout(ctx, o.stopTimeout)
 		defer cancel()
 		t.Log("dstest: asking Cloud Datastore emulator to shut down")
 		req, err := retryablehttp.NewRequestWithContext(ctx, http.MethodPost, fmt.Sprintf("http://%s/shutdown", env.value), nil)
@@ -169,8 +171,8 @@ func Emulator(ctx context.Context, t testing.TB, opts ...Option) *datastore.Clie
 	return client
 }
 
-// Option is an option for [Emulator].  The current implementations are [Mode]
-// and [StartTimeout].
+// Option is an option for [Emulator].  The current implementations are [Mode],
+// [StartTimeout], and [StopTimeout].
 type Option interface {
 	apply(*options)
 }
@@ -200,9 +202,19 @@ func (t StartTimeout) apply(o *options) {
 	o.startTimeout = time.Duration(t)
 }
 
+// StopTimeout is an [Option] that determines how long to wait for the
+// datastore emulator to stop.
+type StopTimeout time.Duration
+
+var _ Option = StopTimeout(0)
+
+func (t StopTimeout) apply(o *options) {
+	o.stopTimeout = time.Duration(t)
+}
+
 type options struct {
-	mode         Mode
-	startTimeout time.Duration
+	mode                      Mode
+	startTimeout, stopTimeout time.Duration
 }
 
 type envVar struct{ name, value string }
