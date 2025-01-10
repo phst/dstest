@@ -1,4 +1,4 @@
-# Copyright 2023 Google LLC
+# Copyright 2023, 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,12 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-SHELL := /bin/sh
+.POSIX:
+.SUFFIXES:
 
-default:
-	go build ./...
-	go test ./...
-	go vet ./...
-	staticcheck ./...
+SHELL = /bin/sh
 
-.PHONY: default
+GO = go
+STATICCHECK = staticcheck
+
+all:
+	$(GO) build ./...
+
+check: all
+	$(GO) test ./...
+	$(GO) vet ./...
+	$(STATICCHECK) ./...
