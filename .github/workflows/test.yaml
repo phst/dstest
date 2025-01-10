@@ -25,11 +25,15 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
       - name: Install Staticcheck
         shell: bash
         run: |
-          sudo apt-get install go-staticcheck
+          go install honnef.co/go/tools/cmd/staticcheck@latest
       - name: Run tests
         shell: bash
         run: |
-          make check GO=/usr/bin/go STATICCHECK=/usr/bin/go-staticcheck
+          make check
