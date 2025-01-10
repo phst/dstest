@@ -29,6 +29,11 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: example
+          install_components: beta,cloud-datastore-emulator
       - name: Install Staticcheck
         shell: bash
         run: |
