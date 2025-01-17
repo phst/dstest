@@ -1,4 +1,4 @@
-// Copyright 2023 Google LLC
+// Copyright 2023, 2025 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -116,6 +116,9 @@ func Emulator(ctx context.Context, t testing.TB, opts ...Option) *datastore.Clie
 		t.Fatalf("dstest: Cloud Datastore emulator didn’t start up: %s", startCtx.Err())
 	}
 
+	if env.name == "" || env.value == "" {
+		t.Fatal("dstest: Cloud Datastore emulator didn’t start up")
+	}
 	t.Logf("dstest: Cloud Datastore emulator running at %s; waiting for health check", env.value)
 	httpClient := retryablehttp.NewClient()
 	httpClient.Logger = logger{t}
