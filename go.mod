@@ -4,7 +4,7 @@ go 1.21
 
 require (
 	cloud.google.com/go/datastore v1.20.0
-	github.com/google/go-cmp v0.6.0
+	github.com/google/go-cmp v0.7.0
 	github.com/hashicorp/go-retryablehttp v0.7.7
 )
 
