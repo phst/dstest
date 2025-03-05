@@ -24,11 +24,13 @@ import (
 	"net/http"
 	"os/exec"
 	"regexp"
+	"strconv"
 	"sync"
 	"testing"
 	"time"
 
 	"cloud.google.com/go/datastore"
+	"github.com/facebookgo/freeport"
 	"github.com/hashicorp/go-retryablehttp"
 )
 
@@ -55,9 +57,14 @@ func Emulator(ctx context.Context, t testing.TB, opts ...Option) *datastore.Clie
 	startCtx, cancel := context.WithTimeout(ctx, o.startTimeout)
 	defer cancel()
 
+	port, err := freeport.Get()
+	if err != nil {
+		t.Fatal(err)
+	}
 	args := []string{
 		"beta", "emulators", "datastore", "start",
 		"--data-dir=" + t.TempDir(),
+		"--host-port=localhost:" + strconv.Itoa(port),
 		"--no-store-on-disk",
 	}
 	switch m := o.mode; m {
