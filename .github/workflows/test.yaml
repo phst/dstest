@@ -34,10 +34,6 @@ jobs:
         with:
           project_id: example
           install_components: beta,cloud-datastore-emulator
-      - name: Install Staticcheck
-        shell: bash
-        run: |
-          go install honnef.co/go/tools/cmd/staticcheck@latest
       - name: Run tests
         shell: bash
         run: |
