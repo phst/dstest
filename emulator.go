@@ -31,6 +31,7 @@ import (
 
 	"cloud.google.com/go/datastore"
 	"github.com/facebookgo/freeport"
+	"github.com/frioux/shellquote"
 	"github.com/hashicorp/go-retryablehttp"
 )
 
@@ -99,6 +100,11 @@ func Emulator(ctx context.Context, t testing.TB, opts ...Option) *datastore.Clie
 	cmd.Stderr = pw
 
 	t.Log("dstest: starting Cloud Datastore emulator")
+	cmdLine, err := shellquote.Quote(cmd.Args)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log("dstest:", cmdLine)
 	if err := cmd.Start(); err != nil {
 		t.Fatalf("dstest: couldn’t start Cloud Datastore emulator: %s", err)
 	}
