@@ -1,6 +1,6 @@
 module github.com/phst/dstest
 
-go 1.21
+go 1.24.1
 
 require (
 	cloud.google.com/go/datastore v1.20.0
