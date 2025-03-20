@@ -20,7 +20,6 @@ import (
 	"bufio"
 	"context"
 	"fmt"
-	"io"
 	"net/http"
 	"os/exec"
 	"regexp"
@@ -77,27 +76,12 @@ func Emulator(ctx context.Context, t testing.TB, opts ...Option) *datastore.Clie
 	}
 	cmd := exec.CommandContext(ctx, "gcloud", args...)
 
-	pr, pw := io.Pipe()
 	envCh := make(chan envVar, 1)
-	go func() {
-		s := bufio.NewScanner(pr)
-		for s.Scan() {
-			line := s.Text()
-			t.Log("dstest:", line)
-			if m := envRegexp.FindStringSubmatch(line); m != nil {
-				envCh <- envVar{m[1], m[2]}
-			}
-		}
-		if err := s.Err(); err != nil {
-			t.Errorf("dstest: couldn’t read output of Cloud Datastore emulator: %s", err)
-		}
-		if err := pr.Close(); err != nil {
-			t.Errorf("dstest: error closing output reader: %s", err)
-		}
-		close(envCh)
-	}()
-	cmd.Stdout = pw
-	cmd.Stderr = pw
+	pr, err := cmd.StdoutPipe()
+	if err != nil {
+		t.Fatal(err)
+	}
+	cmd.Stderr = cmd.Stdout
 
 	t.Log("dstest: starting Cloud Datastore emulator")
 	cmdLine, err := shellquote.Quote(cmd.Args)
@@ -112,11 +96,20 @@ func Emulator(ctx context.Context, t testing.TB, opts ...Option) *datastore.Clie
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
+		s := bufio.NewScanner(pr)
+		for s.Scan() {
+			line := s.Text()
+			t.Log("dstest:", line)
+			if m := envRegexp.FindStringSubmatch(line); m != nil {
+				envCh <- envVar{m[1], m[2]}
+			}
+		}
+		if err := s.Err(); err != nil {
+			t.Errorf("dstest: couldn’t read output of Cloud Datastore emulator: %s", err)
+		}
+		close(envCh)
 		if err := cmd.Wait(); err != nil {
 			t.Errorf("dstest: Cloud Datastore emulator failed: %s", err)
-		}
-		if err := pw.Close(); err != nil {
-			t.Errorf("dstest: error closing output writer: %s", err)
 		}
 		t.Log("dstest: Cloud Datastore emulator terminated")
 	}()
