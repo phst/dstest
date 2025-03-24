@@ -20,6 +20,7 @@ import (
 	"bufio"
 	"context"
 	"fmt"
+	"io"
 	"net/http"
 	"os/exec"
 	"regexp"
@@ -108,6 +109,7 @@ func Emulator(ctx context.Context, t testing.TB, opts ...Option) *datastore.Clie
 			t.Errorf("dstest: couldn’t read output of Cloud Datastore emulator: %s", err)
 		}
 		close(envCh)
+		io.Copy(io.Discard, pr)
 		if err := cmd.Wait(); err != nil {
 			t.Errorf("dstest: Cloud Datastore emulator failed: %s", err)
 		}
