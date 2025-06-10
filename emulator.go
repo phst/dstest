@@ -141,7 +141,7 @@ func Emulator(ctx context.Context, t testing.TB, opts ...Option) *datastore.Clie
 		t.Fatalf("dstest: health check failed: %s", err)
 	}
 	if resp.StatusCode != http.StatusOK {
-		t.Fatalf("dstest: health checked failed with HTTP status %s", resp.Status)
+		t.Fatalf("dstest: health check failed with HTTP status %s", resp.Status)
 	}
 
 	t.Logf("dstest: Cloud Datastore emulator running at %s is healthy", env.value)
