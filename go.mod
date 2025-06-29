@@ -7,7 +7,7 @@ require (
 	github.com/facebookgo/freeport v0.0.0-20150612182905-d4adf43b75b9
 	github.com/frioux/shellquote v0.0.2
 	github.com/google/go-cmp v0.7.0
-	github.com/hashicorp/go-retryablehttp v0.7.7
+	github.com/hashicorp/go-retryablehttp v0.7.8
 )
 
 require (
