@@ -29,6 +29,11 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
+      - name: Set up Java
+        uses: actions/setup-java@v2
+        with:
+          distribution: temurin
+          java-version: 21
       - name: Set up Google Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
         with:
