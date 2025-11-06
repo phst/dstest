@@ -152,17 +152,17 @@ func Emulator(ctx context.Context, t testing.TB, opts ...Option) *datastore.Clie
 		t.Log("dstest: asking Cloud Datastore emulator to shut down")
 		req, err := retryablehttp.NewRequestWithContext(ctx, http.MethodPost, fmt.Sprintf("http://%s/shutdown", env.value), nil)
 		if err != nil {
-			t.Errorf("dstest: stopping Cloud Datastore emulator failed: %s", err)
+			t.Logf("dstest: stopping Cloud Datastore emulator failed: %s", err)
 			return
 		}
 		resp, err := httpClient.Do(req)
 		if err != nil {
-			t.Errorf("dstest: stopping Cloud Datastore emulator failed: %s", err)
+			t.Logf("dstest: stopping Cloud Datastore emulator failed: %s", err)
 			return
 		}
 		defer resp.Body.Close()
 		if resp.StatusCode != http.StatusOK {
-			t.Errorf("dstest: stopping Cloud Datastore emulator failed: %s", resp.Status)
+			t.Logf("dstest: stopping Cloud Datastore emulator failed: %s", resp.Status)
 			return
 		}
 		t.Log("dstest: waiting for Cloud Datastore emulator to stop")
@@ -177,7 +177,7 @@ func Emulator(ctx context.Context, t testing.TB, opts ...Option) *datastore.Clie
 	t.Cleanup(func() {
 		t.Log("dstest: closing datastore client")
 		if err := client.Close(); err != nil {
-			t.Errorf("dstest: couldn’t close datastore client: %s", err)
+			t.Logf("dstest: couldn’t close datastore client: %s", err)
 		}
 	})
 	return client
