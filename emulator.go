@@ -36,13 +36,14 @@ import (
 )
 
 // Emulator starts a Cloud Datastore emulator; see
-// https://cloud.google.com/datastore/docs/tools/datastore-emulator.  If the
-// given context has a deadline, it is applied to the entire running time of
-// the emulator process.  When the test ends, the returned client is
-// automatically closed and the emulator process is killed.  Unless overridden
-// by passing [Option] arguments, this function will start the emulator in
-// Firestore mode and wait up to 20 seconds for it to start up and stop,
-// respectively.
+// https://cloud.google.com/datastore/docs/tools/datastore-emulator.  When the
+// test ends, the returned client is automatically closed and the emulator
+// process is killed.  If the given context has a deadline, it is applied to
+// the entire running time of the emulator process; this means that you
+// shouldn’t pass t.Context() because it’ll get cancelled before Emulator gets
+// a chance to clean up the datastore process.  Unless overridden by passing
+// [Option] arguments, this function will start the emulator in Firestore mode
+// and wait up to 20 seconds for it to start up and stop, respectively.
 func Emulator(ctx context.Context, t testing.TB, opts ...Option) *datastore.Client {
 	t.Helper()
 
