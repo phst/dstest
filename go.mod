@@ -3,7 +3,7 @@ module github.com/phst/dstest
 go 1.25.0
 
 require (
-	cloud.google.com/go/datastore v1.25.0
+	cloud.google.com/go/datastore v1.26.0
 	github.com/facebookgo/freeport v0.0.0-20150612182905-d4adf43b75b9
 	github.com/frioux/shellquote v0.0.2
 	github.com/google/go-cmp v0.7.0
