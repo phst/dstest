@@ -1,6 +1,6 @@
 module github.com/phst/dstest
 
-go 1.25.0
+go 1.26.0
 
 require (
 	cloud.google.com/go/datastore v1.26.0
@@ -46,7 +46,7 @@ require (
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260630182238-925bb5da69e7 // indirect
 	google.golang.org/grpc v1.82.0 // indirect
 	google.golang.org/protobuf v1.36.11 // indirect
-	honnef.co/go/tools v0.7.0 // indirect
+	honnef.co/go/tools v0.8.0 // indirect
 )
 
 tool honnef.co/go/tools/cmd/staticcheck
