@@ -33,7 +33,7 @@ jobs:
         uses: actions/setup-java@v6
         with:
           distribution: temurin
-          java-version: 26.0.2+10
+          java-version: 27.0.0+35
       - name: Set up Google Cloud SDK
         uses: google-github-actions/setup-gcloud@v3
         with:
